@@ -148,6 +148,12 @@ Configure a `TEST_DATABASE_URL` in your environment or `.env` file, so tests aut
 To run tests:
 
 ```sh
+source .env.test && poetry run pytest
+```
+
+or, using the Makefile against the dockerized test environment:
+
+```sh
 source .env.test && make build test_env=true && make test
 ```
 

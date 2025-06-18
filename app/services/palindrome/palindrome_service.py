@@ -1,5 +1,6 @@
 import uuid
 from datetime import datetime, time
+from sqlalchemy import select
 from app.core.parser import is_palindrome
 from app.extensions import db
 from app.models import Palindrome
@@ -20,23 +21,23 @@ class PalindromeService:
 
     def get_by_id(self, palindrome_id: uuid.UUID) -> Palindrome:
         """Retrieve a palindrome by its ID."""
-        return Palindrome.query.get_or_404(palindrome_id)
+        return db.get_or_404(Palindrome, palindrome_id)
 
     def get_all(self, query_params: PalindromeQueryDTO):
         """Retrieve a query for all palindrome entries, with optional filters."""
-        query = Palindrome.query
+        stmt = select(Palindrome)
 
         if query_params.language:
-            query = query.filter(Palindrome.language == query_params.language)
+            stmt = stmt.where(Palindrome.language == query_params.language)
 
         if query_params.date_from:
-            query = query.filter(
+            stmt = stmt.where(
                 Palindrome.created_at
                 >= datetime.combine(query_params.date_from, time.min)
             )
 
         if query_params.date_to:
-            query = query.filter(
+            stmt = stmt.where(
                 Palindrome.created_at
                 <= datetime.combine(query_params.date_to, time.max)
             )
@@ -45,13 +46,14 @@ class PalindromeService:
             sort_column = getattr(Palindrome, query_params.sort, None)
             if sort_column:
                 if query_params.order == "asc":
-                    query = query.order_by(sort_column.asc())
+                    stmt = stmt.order_by(sort_column.asc())
                 else:
-                    query = query.order_by(sort_column.desc())
+                    stmt = stmt.order_by(sort_column.desc())
         else:
-            query = query.order_by(Palindrome.created_at.desc())
+            stmt = stmt.order_by(Palindrome.created_at.desc())
 
-        return query.paginate(
+        return db.paginate(
+            stmt,
             page=query_params.page,
             per_page=query_params.page_size,
             error_out=False,
@@ -59,7 +61,7 @@ class PalindromeService:
 
     def delete_by_id(self, palindrome_id: uuid.UUID):
         """Delete a palindrome entry by its ID."""
-        palindrome = Palindrome.query.get_or_404(palindrome_id)
+        palindrome = db.get_or_404(Palindrome, palindrome_id)
         db.session.delete(palindrome)
         db.session.commit()
 

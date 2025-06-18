@@ -73,12 +73,12 @@ class PalindromeQuerySchema(ma.Schema):
     date_to = fields.Date(
         required=False, metadata={"description": "Filter by creation date (to)."}
     )
-    page = fields.Int(missing=1, validate=validate.Range(min=1))
+    page = fields.Int(load_default=1, validate=validate.Range(min=1))
     page_size = fields.Int(
-        missing=50, data_key="per_page", validate=validate.Range(min=1)
+        load_default=50, data_key="per_page", validate=validate.Range(min=1)
     )
     sort = fields.Str(
-        missing="created_at",
+        load_default="created_at",
         validate=validate.OneOf(["text", "language", "is_palindrome", "created_at"]),
     )
-    order = fields.Str(missing="desc", validate=validate.OneOf(["asc", "desc"]))
+    order = fields.Str(load_default="desc", validate=validate.OneOf(["asc", "desc"]))
