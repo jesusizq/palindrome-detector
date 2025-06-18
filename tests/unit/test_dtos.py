@@ -15,13 +15,17 @@ def test_palindrome_create_dto_success():
     assert dto.language == data["language"]
 
 
-def test_palindrome_create_dto_invalid_language():
+@pytest.mark.parametrize(
+    "language",
+    [
+        "eng",  # Too long
+        "e",  # Too short
+    ],
+)
+def test_palindrome_create_dto_invalid_language(language):
     """Tests that PalindromeCreateDTO raises validation error for invalid language."""
     with pytest.raises(ValidationError):
-        PalindromeCreateDTO(text="some text", language="eng")
-
-    with pytest.raises(ValidationError):
-        PalindromeCreateDTO(text="some text", language="e")
+        PalindromeCreateDTO(text="some text", language=language)
 
 
 def test_palindrome_query_dto_defaults():
