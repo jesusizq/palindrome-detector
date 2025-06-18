@@ -41,10 +41,7 @@ class ProductionConfig(Config):
 class TestingConfig(Config):
     TESTING = True
     DEBUG = True
-    SQLALCHEMY_DATABASE_URI = (
-        os.environ.get("TEST_DATABASE_URL") or Config.SQLALCHEMY_DATABASE_URI
-    )
-
+    SQLALCHEMY_DATABASE_URI = "sqlite:///:memory:"
     CACHE_TYPE = "NullCache"
 
 
