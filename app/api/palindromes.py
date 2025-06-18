@@ -43,13 +43,16 @@ def get_palindromes(args):
     query_dto = PalindromeQueryDTO(**args)
     pagination = palindrome_service.get_all(query_dto)
 
+    url_args = args.copy()
+    url_args.pop("page", None)
+
     prev_url = (
-        url_for("Palindromes.get_palindromes", page=pagination.prev_num, **args)
+        url_for("Palindromes.get_palindromes", page=pagination.prev_num, **url_args)
         if pagination.has_prev
         else None
     )
     next_url = (
-        url_for("Palindromes.get_palindromes", page=pagination.next_num, **args)
+        url_for("Palindromes.get_palindromes", page=pagination.next_num, **url_args)
         if pagination.has_next
         else None
     )

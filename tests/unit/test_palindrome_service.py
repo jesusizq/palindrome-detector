@@ -15,19 +15,7 @@ def palindrome_service():
     return PalindromeService()
 
 
-@pytest.fixture(autouse=True)
-def setup_db(test_app):
-    """Set up the database for each test."""
-    with test_app.app_context():
-        # The import is here to avoid circular dependencies
-        from app.extensions import db
-
-        db.create_all()
-        yield db
-        db.drop_all()
-
-
-def test_create_palindrome(palindrome_service: PalindromeService, test_app):
+def test_create_palindrome(palindrome_service: PalindromeService, db):
     """Test creating a palindrome."""
     create_dto = PalindromeCreateDTO(text="racecar", language="en")
     result = palindrome_service.create(create_dto)
@@ -43,7 +31,7 @@ def test_create_palindrome(palindrome_service: PalindromeService, test_app):
     assert result_non.is_palindrome is False
 
 
-def test_get_by_id(palindrome_service: PalindromeService):
+def test_get_by_id(palindrome_service: PalindromeService, db):
     """Test retrieving a palindrome by its ID."""
     create_dto = PalindromeCreateDTO(text="level", language="en")
     created = palindrome_service.create(create_dto)
@@ -53,7 +41,7 @@ def test_get_by_id(palindrome_service: PalindromeService):
     assert retrieved.text == "level"
 
 
-def test_delete_by_id(palindrome_service: PalindromeService):
+def test_delete_by_id(palindrome_service: PalindromeService, db):
     """Test deleting a palindrome by its ID."""
     create_dto = PalindromeCreateDTO(text="deified", language="en")
     created = palindrome_service.create(create_dto)
@@ -65,7 +53,7 @@ def test_delete_by_id(palindrome_service: PalindromeService):
         palindrome_service.get_by_id(palindrome_id)
 
 
-def test_get_all(palindrome_service: PalindromeService):
+def test_get_all(palindrome_service: PalindromeService, db):
     """Test retrieving all palindromes with various filters."""
     # Create some test data
     palindrome_service.create(PalindromeCreateDTO(text="madam", language="en"))

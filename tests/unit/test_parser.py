@@ -21,12 +21,14 @@ palindrome_test_cases = [
         True,
         "Spanish palindrome with diacritics",
     ),
+    ("été", True, "Unicode with diacritic, palindrome"),
 ]
 
 # Test cases for non-palindromes
 non_palindrome_test_cases = [
     ("hello", False, "Simple non-palindrome"),
     ("not a palindrome", False, "Multi-word non-palindrome"),
+    ("réservé", False, "Unicode with diacritic, not a palindrome"),
 ]
 
 # Edge cases
@@ -34,6 +36,7 @@ edge_test_cases = [
     ("", False, "Empty string"),
     (" ", False, "String with only whitespace"),
     ("a", True, "Single character string"),
+    ("aa", True, "Two identical characters"),
     (".,", False, "String with only punctuation"),
     ("12321", True, "Numeric palindrome"),
     ("12345", False, "Numeric non-palindrome"),
