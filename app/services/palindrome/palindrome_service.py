@@ -8,8 +8,8 @@ from .palindrome_dtos import PalindromeCreateDTO, PalindromeQueryDTO
 
 class PalindromeService:
     def create(self, payload: PalindromeCreateDTO) -> Palindrome:
-        """Create a new palindrome."""
-        is_pal = is_palindrome(payload.text, payload.language)
+        """Create a new palindrome entry."""
+        is_pal = is_palindrome(payload.text)
 
         palindrome = Palindrome(
             text=payload.text, language=payload.language, is_palindrome=is_pal
