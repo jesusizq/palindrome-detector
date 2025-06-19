@@ -9,7 +9,6 @@ from app.api.schemas import (
     PalindromeQuerySchema,
     PalindromeSchema,
 )
-from app.extensions import cache
 from app.services import palindrome_service
 from app.services.palindrome.palindrome_dtos import (
     PalindromeCreateDTO,
@@ -37,7 +36,6 @@ def get_by_id(palindrome_id: uuid.UUID):
 @api.route("", methods=["GET"])
 @arguments(PalindromeQuerySchema)
 @response(PalindromeListSchema)
-@cache.cached()
 def get_palindromes(args):
     """Retrieve a list of palindromes"""
     query_dto = PalindromeQueryDTO(**args)
