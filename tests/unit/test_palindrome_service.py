@@ -1,6 +1,3 @@
-import uuid
-from unittest.mock import MagicMock, patch
-
 import pytest
 from app.services.palindrome.palindrome_dtos import (
     PalindromeCreateDTO,
