@@ -51,6 +51,176 @@ The system is a microservice with a layered architecture:
 
 This modular design supports independent development, testing, and scaling. 
 
+## API Usage
+
+The palindrome detection service provides four main endpoints:
+
+### Base URL
+- **Docker/Nginx**: `http://localhost:8080/v1/palindromes`
+- **Flask Direct**: `http://localhost:5000/v1/palindromes`
+
+### 1. Create/Detect Palindrome
+
+**Endpoint**: `POST /v1/palindromes`
+
+**Description**: Detects if a given text is a palindrome and stores the result.
+
+**Request Body**:
+```json
+{
+  "text": "A man, a plan, a canal: Panama",
+  "language": "en"
+}
+```
+
+**Parameters**:
+- `text` (string, required): The text to check for palindrome property (minimum 1 character)
+- `language` (string, required): The language of the text (ISO 639-1 code, exactly 2 characters, e.g., 'en', 'es')
+
+**Response** (201 Created):
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "text": "A man, a plan, a canal: Panama",
+  "language": "en",
+  "is_palindrome": true,
+  "created_at": "2024-12-19T10:30:00Z"
+}
+```
+
+**Example**:
+```bash
+curl -X POST \
+  -H "Content-Type: application/json" \
+  -H "Accept: application/json" \
+  -d '{"text":"racecar","language":"en"}' \
+  "http://localhost:8080/v1/palindromes"
+```
+
+### 2. Get Palindrome by ID
+
+**Endpoint**: `GET /v1/palindromes/{palindrome_id}`
+
+**Description**: Retrieves a specific palindrome detection result by its UUID.
+
+**Parameters**:
+- `palindrome_id` (UUID, required): The unique identifier of the palindrome detection
+
+**Response** (200 OK):
+```json
+{
+  "id": "550e8400-e29b-41d4-a716-446655440000",
+  "text": "racecar",
+  "language": "en",
+  "is_palindrome": true,
+  "created_at": "2024-12-19T10:30:00Z"
+}
+```
+
+**Example**:
+```bash
+curl -X GET \
+  -H "Accept: application/json" \
+  "http://localhost:8080/v1/palindromes/550e8400-e29b-41d4-a716-446655440000"
+```
+
+### 3. List Palindromes
+
+**Endpoint**: `GET /v1/palindromes`
+
+**Description**: Retrieves a paginated list of palindrome detections with optional filtering and sorting.
+
+**Query Parameters** (all optional):
+- `language` (string): Filter by language (ISO 639-1 code, exactly 2 characters)
+- `date_from` (date): Filter by creation date from (YYYY-MM-DD format)
+- `date_to` (date): Filter by creation date to (YYYY-MM-DD format)
+- `page` (integer): Page number (default: 1, minimum: 1)
+- `per_page` (integer): Number of items per page (default: 50, minimum: 1)
+- `sort` (string): Sort field - one of: `text`, `language`, `is_palindrome`, `created_at` (default: `created_at`)
+- `order` (string): Sort order - `asc` or `desc` (default: `desc`)
+
+**Response** (200 OK):
+```json
+{
+  "palindromes": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "text": "racecar",
+      "language": "en",
+      "is_palindrome": true,
+      "created_at": "2024-12-19T10:30:00Z"
+    }
+  ],
+  "prev_url": null,
+  "next_url": "http://localhost:8080/v1/palindromes?page=2",
+  "total": 150,
+  "pages": 3,
+  "page": 1,
+  "per_page": 50
+}
+```
+
+**Examples**:
+```bash
+# Basic listing
+curl -X GET \
+  -H "Accept: application/json" \
+  "http://localhost:8080/v1/palindromes"
+
+# Filter by language and date range
+curl -X GET \
+  -H "Accept: application/json" \
+  "http://localhost:8080/v1/palindromes?language=en&date_from=2024-07-01&date_to=2024-07-31"
+
+# Pagination and sorting
+curl -X GET \
+  -H "Accept: application/json" \
+  "http://localhost:8080/v1/palindromes?page=2&per_page=10&sort=text&order=asc"
+```
+
+### 4. Delete Palindrome
+
+**Endpoint**: `DELETE /v1/palindromes/{palindrome_id}`
+
+**Description**: Removes a palindrome detection from the system.
+
+**Parameters**:
+- `palindrome_id` (UUID, required): The unique identifier of the palindrome detection to delete
+
+**Response** (204 No Content): Empty response body
+
+**Example**:
+```bash
+curl -X DELETE \
+  -H "Accept: application/json" \
+  "http://localhost:8080/v1/palindromes/550e8400-e29b-41d4-a716-446655440000"
+```
+
+### Health Check
+
+A health check endpoint is available at `/v1/health`:
+
+```bash
+curl -X GET http://localhost:8080/v1/health
+
+# Expected response:
+{"status": "ok"}
+```
+
+### Error Responses
+
+The API returns standard HTTP status codes:
+- `400 Bad Request`: Invalid request body or parameters
+- `404 Not Found`: Palindrome not found
+- `422 Unprocessable Entity`: Validation errors
+- `500 Internal Server Error`: Server error
+
+Error responses include details about the problem:
+```json
+{
+  "message": "Validation error description"
+}
+```
 
 ## Makefile
 
@@ -142,8 +312,6 @@ The app will be available via Nginx at `http://localhost:8080`
 ## Running Tests
 
 Ensure development dependencies are installed (this is handled by `make install` if you haven't run it yet, or it's included if you've run `make up`).
-
-Configure a `TEST_DATABASE_URL` in your environment or `.env` file, so tests automatically run against that database.
 
 To run tests:
 
